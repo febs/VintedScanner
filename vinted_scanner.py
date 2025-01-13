@@ -95,7 +95,6 @@ def send_email(item_title, item_price, item_url, item_image):
     except Exception as e:
         logging.error(f"Error sending email: {e}", exc_info=True)
 
-
 # Send a Slack message when a new item is found
 def send_slack_message(item_title, item_price, item_url, item_image):
     webhook_url = Config.slack_webhook_url 
