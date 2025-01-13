@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import sys
 import time
 import json
@@ -11,6 +12,7 @@ from datetime import datetime
 from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 
+parsed_items_file="vinted_items.txt"
 
 # Configure a rotating file handler to manage log files
 handler = RotatingFileHandler("vinted_scanner.log", maxBytes=5000000, backupCount=5)
@@ -43,11 +45,14 @@ headers = {
 
 # Load previously analyzed item hashes to avoid duplicates
 def load_analyzed_item():
-    try:
-        with open("vinted_items.txt", "r", errors="ignore") as f:
-            for line in f:
-                if line:
-                    list_analyzed_items.append(line.rstrip())
+    try: # creates the file if it's not there.
+        if not os.path.exists(parsed_items_file):
+            open(parsed_items_file, "w").close()
+        else: # parse it if it's there
+            with open(parsed_items_file, "r", errors="ignore") as f:
+                for line in f:
+                    if line:
+                        list_analyzed_items.append(line.rstrip())
     except IOError as e:
         logging.error(e, exc_info=True)
         sys.exit()
@@ -55,7 +60,7 @@ def load_analyzed_item():
 # Save a new analyzed item to prevent repeated alerts
 def save_analyzed_item(hash):
     try:
-        with open("vinted_items.txt", "a") as f:
+        with open(parsed_items_file, "a") as f:
             f.write(str(hash) + "\n")
     except IOError as e:
         logging.error(e, exc_info=True)
