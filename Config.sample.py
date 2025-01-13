@@ -1,12 +1,3 @@
-# SMTP Settings for e-mail notification
-smtp_username = ""
-smtp_psw = ""
-smtp_server = ""
-smtp_toaddrs = ["User <example@example.com>"]
-
-# Slack WebHook for notification
-slack_webhook_url = ""
-
 # Telegram Token and ChatID for notification
 telegram_bot_token = ""
 telegram_chat_id = ""

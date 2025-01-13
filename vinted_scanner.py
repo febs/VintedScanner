@@ -66,64 +66,6 @@ def save_analyzed_item(hash):
         logging.error(e, exc_info=True)
         sys.exit()
 
-# Send notification e-mail when a new item is found
-def send_email(item_title, item_price, item_url, item_image):
-    try:
-        # Create the e-mail message
-        msg = EmailMessage()
-        msg["To"] = Config.smtp_toaddrs
-        msg["From"] = email.utils.formataddr(("Vinted Scanner", Config.smtp_username))
-        msg["Subject"] = "Vinted Scanner - New Item"
-        msg["Date"] = email.utils.formatdate(localtime=True)
-        msg["Message-ID"] = email.utils.make_msgid()
-
-        # Format message content
-        body = f"{item_title}\n{item_price}\n🔗 {item_url}\n📷 {item_image}"
-
-        msg.set_content(body)
-        
-        # Securely opening the SMTP connection
-        with smtplib.SMTP(Config.smtp_server, 587) as smtpserver:
-            smtpserver.ehlo()
-            smtpserver.starttls()
-            smtpserver.ehlo()
-
-            # Authentication
-            smtpserver.login(Config.smtp_username, Config.smtp_psw)
-            
-            # Sending the message
-            smtpserver.send_message(msg)
-            logging.info("E-mail sent")
-    
-    except smtplib.SMTPException as e:
-        logging.error(f"SMTP error sending email: {e}", exc_info=True)
-    except Exception as e:
-        logging.error(f"Error sending email: {e}", exc_info=True)
-
-# Send a Slack message when a new item is found
-def send_slack_message(item_title, item_price, item_url, item_image):
-    webhook_url = Config.slack_webhook_url 
-
-    # Format message content
-    message = f"*{item_title}*\n🏷️ {item_price}\n🔗 {item_url}\n📷 {item_image}"
-    slack_data = {"text": message}
-
-    try:
-        response = requests.post(
-            webhook_url, 
-            data=json.dumps(slack_data),
-            headers={"Content-Type": "application/json"},
-            timeout=timeoutconnection
-        )
-
-        if response.status_code != 200:
-            logging.error(f"Slack notification failed: {response.status_code}, {response.text}")
-        else:
-            logging.info("Slack notification sent")
-
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error sending Slack message: {e}")
-
 # Send a Telegram message when a new item is found
 def send_telegram_message(item_title, item_price, item_url, item_image):
 
@@ -178,14 +120,6 @@ def main():
 
                 # Check if the item has already been analyzed to prevent duplicates
                 if item_id not in list_analyzed_items:
-
-                    # Send e-mail notifications if configured
-                    if Config.smtp_username and Config.smtp_server:
-                        send_email(item_title, item_price,item_url, item_image)
-
-                    # Send Slack notifications if configured
-                    if Config.slack_webhook_url:
-                        send_slack_message(item_title, item_price, item_url, item_image)
 
                     # Send Telegram notifications if configured
                     if Config.telegram_bot_token and Config.telegram_chat_id:
