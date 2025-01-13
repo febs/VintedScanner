@@ -1,0 +1,5 @@
+Config.py
+__pycache__/
+vinted_scanner.log
+vinted_items.txt
+
